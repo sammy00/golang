@@ -1,64 +1,60 @@
-// Package stack implements a stack.
+// Package stack implements a stack based on single linked list.
 package stack
 
-import (
-	"container/list"
-)
+type Element struct {
+	Value interface{}
+	next  *Element
+}
+
+func (e *Element) Next() *Element {
+	return e.next
+}
 
 // Stack represents a stack
 // The zero value for Stack is an unintialized stack
 // ought to initialize by invoking Init()
 type Stack struct {
-	list *list.List // data store for stack element
+	top  *Element
+	size int
 }
 
 // New returns an initialized stack
 func New() *Stack {
-	list := list.New()
-	return &Stack{list}
-}
-
-// Init initializes or clears the stack
-func (s *Stack) Init() *Stack {
-	s.list.Init()
-	return s
+	return &Stack{nil, 0}
 }
 
 // Push adds an element to the stack
-func (stack *Stack) Push(x interface{}) {
-	stack.list.PushBack(x)
+func (s *Stack) Push(x interface{}) {
+	s.top = &Element{x, s.top}
+	s.size++
 }
 
 // Pop out the top element from the stack
-func (stack *Stack) Pop() interface{} {
-	e := stack.list.Back()
-	if nil != e {
-		stack.list.Remove(e)
-		return e.Value
+func (s *Stack) Pop() interface{} {
+	var x interface{}
+	if nil != s.top {
+		x, s.top = s.top.Value, s.top.next
+		s.size--
+	}
+
+	return x
+}
+
+// Peek returns the element in the top of the s
+func (s *Stack) Peek() interface{} {
+	if nil != s.top {
+		return s.top.Value
 	}
 
 	return nil
 }
 
-// Peek returns the element in the top of the stack
-func (stack *Stack) Peek() interface{} {
-	e := stack.list.Back()
-	if nil != e {
-		return e.Value
-	}
-
-	return nil
-}
-
-// Len returns the size of the stack
+// Len returns the size of the s
 func (s *Stack) Len() int {
-	return s.list.Len()
+	return s.size
 }
 
 // Empty returns true if the stack is empty
 func (s *Stack) Empty() bool {
-	if (nil == s.list) || (0 == s.list.Len()) {
-		return true
-	}
-	return false
+	return (0 == s.size)
 }

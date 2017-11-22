@@ -1,7 +1,10 @@
 package stack_test
 
-import "testing"
-import "github.com/sammy00/golang.lib/container/stack"
+import (
+	"testing"
+
+	"github.com/sammy00/golang/container/stack"
+)
 
 func TestStack(t *testing.T) {
 	stack := stack.New()
