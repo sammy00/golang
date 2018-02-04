@@ -4,7 +4,22 @@
 
 package secp256k1_test
 
-/*
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
+
+	"github.com/sammy00/golang/crypto/secp256k1"
+)
+
+// doubleHash calculates H(H(msg))
+func doubleHash(msg []byte) []byte {
+	h1 := sha256.Sum256(msg)
+	h2 := sha256.Sum256(h1[:])
+
+	return h2[:]
+}
+
 // This example demonstrates signing a message with a secp256k1 private key that
 // is first parsed form raw bytes and serializing the generated signature.
 func Example_signMessage() {
@@ -15,11 +30,12 @@ func Example_signMessage() {
 		fmt.Println(err)
 		return
 	}
-	privKey, pubKey := btcec.PrivKeyFromBytes(btcec.S256(), pkBytes)
+	privKey, pubKey := secp256k1.PrivKeyFromBytes(secp256k1.S256(), pkBytes)
 
 	// Sign a message using the private key.
 	message := "test message"
-	messageHash := chainhash.DoubleHashB([]byte(message))
+	//messageHash := chainhash.DoubleHashB([]byte(message))
+	messageHash := doubleHash([]byte(message))
 	signature, err := privKey.Sign(messageHash)
 	if err != nil {
 		fmt.Println(err)
@@ -49,7 +65,7 @@ func Example_verifySignature() {
 		fmt.Println(err)
 		return
 	}
-	pubKey, err := btcec.ParsePubKey(pubKeyBytes, btcec.S256())
+	pubKey, err := secp256k1.ParsePubKey(pubKeyBytes, secp256k1.S256())
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -64,7 +80,7 @@ func Example_verifySignature() {
 		fmt.Println(err)
 		return
 	}
-	signature, err := btcec.ParseSignature(sigBytes, btcec.S256())
+	signature, err := secp256k1.ParseSignature(sigBytes, secp256k1.S256())
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -72,7 +88,8 @@ func Example_verifySignature() {
 
 	// Verify the signature for the message using the public key.
 	message := "test message"
-	messageHash := chainhash.DoubleHashB([]byte(message))
+	//messageHash := chainhash.DoubleHashB([]byte(message))
+	messageHash := doubleHash([]byte(message))
 	verified := signature.Verify(messageHash, pubKey)
 	fmt.Println("Signature Verified?", verified)
 
@@ -91,7 +108,7 @@ func Example_encryptMessage() {
 		fmt.Println(err)
 		return
 	}
-	pubKey, err := btcec.ParsePubKey(pubKeyBytes, btcec.S256())
+	pubKey, err := secp256k1.ParsePubKey(pubKeyBytes, secp256k1.S256())
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -99,7 +116,7 @@ func Example_encryptMessage() {
 
 	// Encrypt a message decryptable by the private key corresponding to pubKey
 	message := "test message"
-	ciphertext, err := btcec.Encrypt(pubKey, []byte(message))
+	ciphertext, err := secp256k1.Encrypt(pubKey, []byte(message))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -113,10 +130,10 @@ func Example_encryptMessage() {
 		return
 	}
 	// note that we already have corresponding pubKey
-	privKey, _ := btcec.PrivKeyFromBytes(btcec.S256(), pkBytes)
+	privKey, _ := secp256k1.PrivKeyFromBytes(secp256k1.S256(), pkBytes)
 
 	// Try decrypting and verify if it's the same message.
-	plaintext, err := btcec.Decrypt(privKey, ciphertext)
+	plaintext, err := secp256k1.Decrypt(privKey, ciphertext)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -139,7 +156,7 @@ func Example_decryptMessage() {
 		return
 	}
 
-	privKey, _ := btcec.PrivKeyFromBytes(btcec.S256(), pkBytes)
+	privKey, _ := secp256k1.PrivKeyFromBytes(secp256k1.S256(), pkBytes)
 
 	ciphertext, err := hex.DecodeString("35f644fbfb208bc71e57684c3c8b437402ca" +
 		"002047a2f1b38aa1a8f1d5121778378414f708fe13ebf7b4a7bb74407288c1958969" +
@@ -148,7 +165,7 @@ func Example_decryptMessage() {
 		"d14174f8b83354fac3ff56075162")
 
 	// Try decrypting the message.
-	plaintext, err := btcec.Decrypt(privKey, ciphertext)
+	plaintext, err := secp256k1.Decrypt(privKey, ciphertext)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -159,4 +176,3 @@ func Example_decryptMessage() {
 	// Output:
 	// test message
 }
-*/
